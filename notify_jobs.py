@@ -1,6 +1,5 @@
 import os
 import json
-import time
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -9,11 +8,6 @@ from services.email_service import send_job_email
 
 load_dotenv()
 
-# =========================
-# SETTINGS
-# =========================
-
-CHECK_INTERVAL = 60      # 1 hour
 MIN_MATCH_SCORE = 60
 
 ROLES = [
@@ -29,41 +23,25 @@ LOCATIONS = [
 SENT_FILE = "data/sent_jobs.json"
 
 
-# =========================
-# SENT JOBS
-# =========================
-
 def load_sent_jobs():
-
     if not os.path.exists(SENT_FILE):
         return set()
 
     try:
         with open(SENT_FILE, "r", encoding="utf-8") as f:
             return set(json.load(f))
-
     except Exception:
         return set()
 
 
 def save_sent_jobs(sent_jobs):
-
     os.makedirs("data", exist_ok=True)
 
     with open(SENT_FILE, "w", encoding="utf-8") as f:
-        json.dump(
-            list(sent_jobs),
-            f,
-            indent=2
-        )
+        json.dump(list(sent_jobs), f, indent=2)
 
-
-# =========================
-# MATCHING
-# =========================
 
 def calculate_match_score(job):
-
     text = " ".join([
         str(job.get("title", "")),
         str(job.get("description", "")),
@@ -97,7 +75,6 @@ def calculate_match_score(job):
         if skill in text:
             matched.append(skill)
 
-    # Give a reasonable score based on matched skills
     score = min(
         100,
         round((len(matched) / 8) * 100, 2)
@@ -106,14 +83,10 @@ def calculate_match_score(job):
     return score, matched
 
 
-# =========================
-# SEARCH + EMAIL
-# =========================
-
 def search_and_email_jobs():
 
     print("\n" + "=" * 70)
-    print("🚀 CAREERPILOT AI - AUTOMATIC JOB MONITOR")
+    print("🚀 CAREERPILOT AI - SCHEDULED JOB MONITOR")
     print("=" * 70)
 
     try:
@@ -126,16 +99,10 @@ def search_and_email_jobs():
         )
 
         if jobs is None or jobs.empty:
-
             print("❌ No jobs returned.")
-
             return
 
         print(f"\n✅ {len(jobs)} real jobs found.")
-
-        # -------------------------
-        # Calculate scores
-        # -------------------------
 
         results = []
 
@@ -152,10 +119,6 @@ def search_and_email_jobs():
 
         results_df = pd.DataFrame(results)
 
-        # -------------------------
-        # Show top jobs
-        # -------------------------
-
         results_df = results_df.sort_values(
             by="score",
             ascending=False
@@ -170,10 +133,6 @@ def search_and_email_jobs():
                 f"{job.get('title', '')} | "
                 f"{job.get('company', '')}"
             )
-
-        # -------------------------
-        # Filter matching jobs
-        # -------------------------
 
         matching_jobs = results_df[
             results_df["score"] >= MIN_MATCH_SCORE
@@ -190,10 +149,6 @@ def search_and_email_jobs():
 
             return
 
-        # -------------------------
-        # Remove duplicates
-        # -------------------------
-
         sent_jobs = load_sent_jobs()
 
         new_jobs = []
@@ -201,13 +156,15 @@ def search_and_email_jobs():
         for _, job in matching_jobs.iterrows():
 
             job_id = str(
-                job.get("id")
-                or job.get("url")
+                job.get("id") or
+                job.get("url")
             )
 
             if job_id not in sent_jobs:
 
-                new_jobs.append(job.to_dict())
+                new_jobs.append(
+                    job.to_dict()
+                )
 
         print(
             f"🆕 New jobs not previously emailed: "
@@ -216,29 +173,31 @@ def search_and_email_jobs():
 
         if not new_jobs:
 
-            print("ℹ️ All matching jobs were already emailed.")
+            print(
+                "ℹ️ All matching jobs were already emailed."
+            )
 
             return
 
         new_jobs_df = pd.DataFrame(new_jobs)
 
-        # -------------------------
-        # SEND EMAIL
-        # -------------------------
-
         print("\n📧 Sending Gmail alert...")
 
-        success = send_job_email(new_jobs_df)
+        success = send_job_email(
+            new_jobs_df
+        )
 
-        print(f"📧 Email result: {success}")
+        print(
+            f"📧 Email result: {success}"
+        )
 
         if success:
 
             for _, job in new_jobs_df.iterrows():
 
                 job_id = str(
-                    job.get("id")
-                    or job.get("url")
+                    job.get("id") or
+                    job.get("url")
                 )
 
                 sent_jobs.add(job_id)
@@ -246,12 +205,15 @@ def search_and_email_jobs():
             save_sent_jobs(sent_jobs)
 
             print(
-                f"✅ {len(new_jobs_df)} jobs emailed successfully!"
+                f"✅ {len(new_jobs_df)} jobs "
+                f"emailed successfully!"
             )
 
         else:
 
-            print("❌ Email function returned False.")
+            print(
+                "❌ Email function returned False."
+            )
 
     except Exception as error:
 
@@ -259,27 +221,16 @@ def search_and_email_jobs():
         print(error)
 
 
-# =========================
-# 24/7 LOOP
-# =========================
-
 def main():
 
-    print("\n🤖 CareerPilot AI 24/7 Job Monitor")
+    print("\n🤖 CareerPilot AI - Scheduled Job Monitor")
     print("🌐 Source: Adzuna")
     print("📧 Destination: Gmail")
     print("🎯 Match threshold: 60%")
-    print("⏰ Search interval: 1 hour")
-    print("🛑 Press Ctrl+C to stop")
+    print("⏰ GitHub Actions will schedule the next run")
 
-    while True:
-
-        search_and_email_jobs()
-
-        print("\n⏳ Waiting 1 hour for next search...")
-
-        time.sleep(CHECK_INTERVAL)
+    search_and_email_jobs()
 
 
 if __name__ == "__main__":
-    main() 
+    main()
