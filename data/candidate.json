@@ -1,0 +1,30 @@
+{
+    "name": "Vinaya",
+    "education": "B.E Computer Science and Engineering",
+    "experience": "Fresher",
+    "skills": [
+        "Python",
+        "SQL",
+        "AWS",
+        "Azure",
+        "Power BI",
+        "Pandas",
+        "NumPy",
+        "Git",
+        "Linux"
+    ],
+    "target_roles": [
+        "Software Developer",
+        "Python Developer",
+        "Data Analyst",
+        "Data Engineer",
+        "Cloud Engineer",
+        "AI Engineer"
+    ],
+    "preferred_locations": [
+        "Bangalore",
+        "Chennai",
+        "Hyderabad",
+        "Remote"
+    ]
+}

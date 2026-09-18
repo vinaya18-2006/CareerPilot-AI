@@ -1,0 +1,8 @@
+id,title,company,location,experience,skills,url
+1,Python Developer,ABC Technologies,Bangalore,0-1,"Python,SQL,AWS,Git",https://example.com
+2,Data Analyst,XYZ Analytics,Chennai,0-1,"Python,SQL,Power BI,Excel",https://example.com
+3,Cloud Engineer,CloudTech,Bangalore,0-1,"AWS,Azure,Docker,Linux",https://example.com
+4,Software Engineer,TechCorp,Hyderabad,0-1,"Python,DSA,SQL,Git",https://example.com
+5,AI Engineer,AILabs,Remote,0-1,"Python,Machine Learning,SQL,TensorFlow",https://example.com
+6,Backend Developer,CodeWorks,Bangalore,0-1,"Python,FastAPI,SQL,Docker",https://example.com
+7,Data Engineer,DataWorks,Chennai,0-1,"Python,SQL,Azure,ETL",https://example.com
