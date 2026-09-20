@@ -1,8 +1,14 @@
 name: CareerPilot Job Monitor
 
 on:
+  push:
+    branches:
+      - main
+
   schedule:
     - cron: "30 * * * *"
+
+  workflow_dispatch:
   workflow_dispatch:
 
 permissions:
@@ -21,10 +27,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - - name: Verify dependency file
+  run: |
+    echo "===== COMMIT ====="
+    git rev-parse HEAD
+    echo "===== NUMPY ====="
+    grep -n "numpy" requirements.txt
+    echo "===== PYTHON ====="
+    python --version
+
+- name: Install dependencies
+  run: |
+    python -m pip install --upgrade pip
+    pip install --no-cache-dir -r requirements.txt
 
       - name: Run CareerPilot job monitor
         env:
